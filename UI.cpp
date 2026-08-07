@@ -66,6 +66,7 @@ void updateButtons() {
 }
 
 // =====================================================================================
+// =====================================================================================
 void handleUI() {
   static long lastProcessedTicks = 0;
   noInterrupts();
@@ -77,23 +78,39 @@ void handleUI() {
   bool shortPress = false, longPress = false;
   static bool wasPressed = false;
   
+  // بررسی وضعیت انکودر
   if (encSwStable && !wasPressed) { wasPressed = true; }
   if (!encSwStable && wasPressed) {
     wasPressed = false;
     if (!encSwLongHandled) shortPress = true;
   }
-  
   if (encSwStable && !encSwLongHandled && (millis() - encSwPressStart > LOCK_HOLD_MS)) {
     longPress = true;
     encSwLongHandled = true;
   }
 
-  // قفل کردن دستگاه
+  // --- افزودن کاربرد جدید برای دکمه SW1 روی برد (انتخاب سریع پریست) ---
+  static bool sw1WasPressed = false;
+  bool sw1ShortPress = false;
+  if (sw1Stable && !sw1WasPressed) { sw1WasPressed = true; }
+  if (!sw1Stable && sw1WasPressed) { 
+    sw1WasPressed = false; 
+    sw1ShortPress = true; 
+  }
+
+  // اگر دکمه SW1 فشرده شد، سریعاً به پریست بعدی برو
+  if (sw1ShortPress && !inEditMode && weldState != WS_FAULT) {
+    currentPresetIndex = (currentPresetIndex + 1) % NUM_PRESETS;
+    prefs.putInt("lastPreset", currentPresetIndex);
+  }
+  // -------------------------------------------------------------------
+
+  // قفل کردن دستگاه با نگه داشتن انکودر
   if (longPress) {
     deviceLocked = !deviceLocked;
     prefs.putBool("locked", deviceLocked);
     weldState = deviceLocked ? WS_LOCKED : WS_IDLE;
-    return; // بوق منو حذف شد
+    return;
   }
 
   // خروج از حالت خطا
@@ -122,7 +139,6 @@ void handleUI() {
         case SCR_SAVE:
           savePreset(currentPresetIndex);
           prefs.putInt("lastPreset", currentPresetIndex);
-          // بوق ذخیره منو حذف شد
           break;
       }
     }

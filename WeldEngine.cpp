@@ -49,12 +49,11 @@ int weldState = WS_IDLE;
 int lastError = ERR_NONE;
 
 // =====================================================================================
-//  TRIGGER LOGIC (ASSUMPTION #1 - isolated here so it's a one-line change)
+//  TRIGGER LOGIC 
 // =====================================================================================
 bool triggerActive() {
-  // Both switches must be closed together (dual-switch safety interlock).
-  // Single-switch version (WELD-SW only):   return weldSwStable;
-  return sw1Stable && weldSwStable;
+  // قفل ایمنی SW1 حذف شد. اکنون فقط میکروسوئیچ دسته جوش (WELD-SW) پالس را شلیک می‌کند.
+  return weldSwStable;
 }
 
 void IRAM_ATTR zcdISR() {

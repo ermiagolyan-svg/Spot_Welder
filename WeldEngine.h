@@ -28,6 +28,7 @@ extern float acFrequencyHz;
 extern float heatAccum;
 extern unsigned long totalWeldCount;
 extern bool deviceLocked;
+extern unsigned long lastHeatUpdateMs; // <--- این خط اضافه شد
 
 // ================================ Functions ================================
 bool triggerActive();
